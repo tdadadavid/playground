@@ -1,6 +1,6 @@
-import {Request} from "express"
+import "multer"
+import {Express} from "express";
 
-
-export interface ControllerArgs {
-    file: any;
+export interface RequestsArgs {
+    file: Express.Multer.File;
 }

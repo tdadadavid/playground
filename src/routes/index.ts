@@ -1,9 +1,15 @@
 import {Router} from "express";
 import { controllerHandler } from "../commons/controlHandler";
-import { VidoeService } from "../services/getVideoMetaData";
+import {VideoService} from "../services";
+import multer from "multer";
 
-const router = Router();
+export const router = Router();
 
-const videoService = new VidoeService();
+const upload = multer({ dest: '/tmp' });
 
-router.post('/rm-audio', controllerHandler(videoService.removeAudio));
+const videoService: VideoService = new VideoService();
+
+router.use(upload.single('file'))
+  .post('/rm-audio',controllerHandler(videoService.removeAudio))
+  .post('/meta-video',controllerHandler(videoService.getMetadata))
+  .post('/new-audio', controllerHandler(videoService.addNewAudio));
