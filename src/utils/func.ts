@@ -31,5 +31,5 @@ export const isValidContentType = (req: Request): boolean => {
   const contentType: string | undefined = getContentType(req);
   if(!contentType) return false;
 
-  return acceptedMimeTypes.includes(contentType);
+  return acceptedMimeTypes.includes(contentType) || contentType.startsWith('multipart')
 }

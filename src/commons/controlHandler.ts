@@ -6,7 +6,8 @@ import {
     isValidContentType
 } from "../utils";
 import {Request, Response, NextFunction} from "express";
-import { Schema } from "joi";
+import {object, Schema} from "joi";
+import {FfmpegCommand} from "fluent-ffmpeg";
 
 /**
  * @desc Custom wrapper around express req/res callback function.
@@ -15,20 +16,25 @@ import { Schema } from "joi";
  * @returns {ExpressCallBackFunction}
  */
 export const controllerHandler = (func: AnyFunction, schema?: Schema): ExpressCallBackFunction => {
-    return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    return async (req: Request, res: Response, next: NextFunction) => {
         const {file} = parseRequestArgs(req);
 
         if(!isValidContentType(req)) {
             res.status(400).json({
                 status: "failed",
-                error: " Content-type encoding is not accepted or undefined"
+                error: `${req.headers['content-type']} is not an accepted Content-type`
             });
             return;
         }
+        const {code, ...info}: ReturnValue = await func({ file });
 
-        const {code, ...data}: ReturnValue = await func(file);
-        if(!code) res.status(200).json(data);
+        // if(info.data instanceof object){
+        //     return info.data.writeToStream(res);
+        // }
 
-        res.status(code!).json(data);
+        // if(!code) res.status(200).json(info);
+
+        info.data.pipe(res, { end: true });
+        // res.status(code!).json(info);
     }
 }
