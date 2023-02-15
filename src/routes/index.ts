@@ -29,6 +29,7 @@ router
   .use(isContentTypeValid) // middleware for validating multipart/form-data requests.
   .use(upload.single('file')) // middleware to extract files from the request.
   .post('/rm-audio',controllerHandler(videoService.removeAudio, removeAudioSchema))
+  .post('/rm-video', controllerHandler(videoService.removeVideo))
   .post('/meta-video',controllerHandler(videoService.getMetadata, getMetaDataSchema))
   .post('/new-audio', controllerHandler(videoService.addNewAudio, addNewAudioSchema));
 
