@@ -9,7 +9,8 @@ import {acceptedMimeTypes} from "./constants";
  */
 export const parseRequestArgs = (req: Request): RequestsArgs => {
   return {
-    file: req.file as Express.Multer.File
+    file: req.file as Express.Multer.File,
+    param: req.params,
   }
 }
 

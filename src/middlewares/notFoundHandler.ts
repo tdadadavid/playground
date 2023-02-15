@@ -1,5 +1,5 @@
 import {Response,NextFunction, Request} from "express";
-import {NotFoundError} from "../commons/errors";
+import {NotFoundError} from "../commons";
 
 
 class NotFoundHandler {
