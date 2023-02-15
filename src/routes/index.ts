@@ -1,6 +1,6 @@
 import {Router} from "express";
 import { controllerHandler } from "../commons";
-import {VideoService} from "../services";
+import {MediaService} from "../services";
 import multer from "multer";
 import {addNewAudioSchema, getMetaDataSchema, removeAudioSchema} from "../commons";
 import {command} from "../services/ffmpegService";
@@ -19,7 +19,7 @@ const upload = multer({ storage, });
 /**
  * @desc video manipulation service.
  */
-const videoService: VideoService = new VideoService(command);
+const mediaService: MediaService = new MediaService(command);
 
 /**
  * @desc routers [endpoints].
@@ -28,14 +28,14 @@ const videoService: VideoService = new VideoService(command);
 router
   .use(isContentTypeValid) // middleware for validating multipart/form-data requests.
   .use(upload.single('file')) // middleware to extract files from the request.
-  .post('/rm-audio',controllerHandler(videoService.removeAudio, removeAudioSchema))
-  .post('/rm-video', controllerHandler(videoService.removeVideo))
-  .post('/meta-video',controllerHandler(videoService.getMetadata, getMetaDataSchema))
-  .post('/new-audio', controllerHandler(videoService.addNewAudio, addNewAudioSchema));
+  .post('/rm-audio',controllerHandler(mediaService.removeAudio, removeAudioSchema))
+  .post('/rm-video', controllerHandler(mediaService.removeVideo))
+  .post('/meta-video',controllerHandler(mediaService.getMetadata, getMetaDataSchema))
+  .post('/new-audio', controllerHandler(mediaService.addNewAudio, addNewAudioSchema));
 
 /**
  * @desc routers [endpoints].
  * endpoints to get edited media files.
  */
 router
-  .get('/video/:videoName', controllerHandler(videoService.getVideo))
+  .get('/video/:videoName', controllerHandler(mediaService.getVideo))

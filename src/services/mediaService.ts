@@ -12,7 +12,7 @@ import {randomUUID} from "crypto";
 /**
  * @author @Anonymous.
  */
-export class VideoService {
+export class MediaService {
 
     constructor(public readonly manipulator: FfmpegCommand) {}
     /**
