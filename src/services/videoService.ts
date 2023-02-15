@@ -1,8 +1,14 @@
 import {RequestsArgs, ReturnValue} from "../utils";
 import {FfmpegCommand} from "fluent-ffmpeg";
-import * as fs from "fs";
 import {MediaProcessingError} from "../commons";
 import path from "path";
+import {randomUUID} from "crypto";
+
+//TODO: so the video is processing check on how to stream it
+//TODO: I also think I need to store the processed file in a folder
+//TODO: then create an endpoint to retrieve it.
+//TODO: read on seeking in mp4
+
 /**
  * @author @Anonymous.
  */
@@ -15,38 +21,23 @@ export class VideoService {
      * @returns {Promise<ReturnValue>}
      */
     removeAudio = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-        const output = await this.manipulator.input(file.path)
+        const [extension, outputPath] = this.getFilePathAndExtension(file);
+        const output = this.manipulator.input(file.path)
           .noAudio()
-          .format('ismv')
-          .on('start', () => {
-            console.log('Processing started')
+          .format(extension)
+          .on('end', () => console.log("done!!!"))
+          .on('error', (error) => {
+            throw new MediaProcessingError("Error: " + error.message);
           })
-          .on('progress', (data) => {
-            console.log('Current progress', data.percent)
-          })
-          .on('end', (data)=>{
-            return {
-              code: 200,
-              message: "Audio content removed",
-              data,
-            }
-          })
-          .on('error', (error, inputStreamError, outputStreamError) => {
-            console.log(inputStreamError, outputStreamError);
-            throw new MediaProcessingError("Error:" + error.message);
-          });
+          .save(outputPath);
 
-        console.log(output);
-
-        //TODO: so the video is processing check on how to stream it
-        //TODO: I also think I need to store the processed file in a folder
-        //TODO: then create an endpoint to retrieve it.
-        //TODO: read on seeking in mp4
-
+        const outputFileName = (output as any)['_outputs'][0]['target'].split('/').at(-1);
         return {
           code: 200,
-          message: "Audio content removed",
-          data: output,
+          message: "Audio content removed in a giffy",
+          data: {
+              file: outputFileName,
+          }
         }
     }
 
@@ -67,5 +58,17 @@ export class VideoService {
      */
     async addNewAudio({}: RequestsArgs): Promise<ReturnValue> {
         return {}
+    }
+
+    getVideo = async ({ param }: RequestsArgs): Promise<ReturnValue> => {
+        return {};
+    }
+
+    private getFilePathAndExtension = (file: Express.Multer.File): Array<string>  => {
+        const extension = file.originalname.split('.')[1];
+        const fileName = file.originalname;
+        const randomId = randomUUID().toString();
+        const outputMediaPath = path.join(__dirname, `../../media/output/${fileName}-${randomId}.${extension}`);
+        return [extension, outputMediaPath];
     }
 }

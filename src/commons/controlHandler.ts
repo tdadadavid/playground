@@ -6,8 +6,10 @@ import {
     isValidContentType
 } from "../utils";
 import {Request, Response, NextFunction} from "express";
-import {object, Schema} from "joi";
-import {FfmpegCommand} from "fluent-ffmpeg";
+import {Schema} from "joi";
+import {ValidationError} from "./errors";
+import {validateReq} from "./validations";
+
 
 /**
  * @desc Custom wrapper around express req/res callback function.
@@ -17,7 +19,9 @@ import {FfmpegCommand} from "fluent-ffmpeg";
  */
 export const controllerHandler = (func: AnyFunction, schema?: Schema): ExpressCallBackFunction => {
     return async (req: Request, res: Response, next: NextFunction) => {
-        const {file} = parseRequestArgs(req);
+        const reqArgs = parseRequestArgs(req);
+        const {file, param} = parseRequestArgs(req);
+
 
         if(!isValidContentType(req)) {
             res.status(400).json({
@@ -26,15 +30,21 @@ export const controllerHandler = (func: AnyFunction, schema?: Schema): ExpressCa
             });
             return;
         }
-        const {code, ...info}: ReturnValue = await func({ file });
 
-        // if(info.data instanceof object){
-        //     return info.data.writeToStream(res);
-        // }
+        try{
+            if (schema){
+                if (param)
+                validateReq(schema, param);
 
-        // if(!code) res.status(200).json(info);
+            }
+        }catch (err: unknown){
+            const error = new ValidationError(
+              (err as any).message.replace('/', '').toLocaleString()
+            );
+            next(error);
+        }
 
-        info.data.pipe(res, { end: true });
-        // res.status(code!).json(info);
+        const {code, ...info}: ReturnValue = await func(reqArgs);
+        return res.status(code!).json(info);
     }
 }
