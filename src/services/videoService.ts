@@ -25,6 +25,9 @@ export class VideoService {
         const output = this.manipulator.input(file.path)
           .noAudio()
           .format(extension)
+          .on('progress', (data) => {
+              console.log(`Processing is at ${data.percent.toFixed(2)} %`)
+          })
           .on('end', () => console.log("done!!!"))
           .on('error', (error) => {
             throw new MediaProcessingError("Error: " + error.message);

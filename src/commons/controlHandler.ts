@@ -3,7 +3,6 @@ import {
     ExpressCallBackFunction,
     parseRequestArgs,
     ReturnValue,
-    isValidContentType
 } from "../utils";
 import {Request, Response, NextFunction} from "express";
 import {Schema} from "joi";
@@ -20,29 +19,23 @@ import {validateReq} from "./validations";
 export const controllerHandler = (func: AnyFunction, schema?: Schema): ExpressCallBackFunction => {
     return async (req: Request, res: Response, next: NextFunction) => {
         const reqArgs = parseRequestArgs(req);
-        const {file, param} = parseRequestArgs(req);
+        const {param} = parseRequestArgs(req);
 
-
-        if(!isValidContentType(req)) {
-            res.status(400).json({
-                status: "failed",
-                error: `${req.headers['content-type']} is not an accepted Content-type`
-            });
-            return;
-        }
-
-        try{
-            if (schema){
-                if (param)
-                validateReq(schema, param);
-
-            }
-        }catch (err: unknown){
-            const error = new ValidationError(
-              (err as any).message.replace('/', '').toLocaleString()
-            );
-            next(error);
-        }
+        // validate request body, parameters and queries.
+        // try{
+        //     if (schema){
+        //         if (param) {
+        //             validateReq(schema, param);
+        //         }
+        //
+        //     }
+        // }catch (err: unknown){
+        //     const error = new ValidationError(
+        //       (err as any).message
+        //     );
+        //     next(error);
+        //     return ;
+        // }
 
         const {code, ...info}: ReturnValue = await func(reqArgs);
         return res.status(code!).json(info);

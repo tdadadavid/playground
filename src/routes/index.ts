@@ -4,6 +4,7 @@ import {VideoService} from "../services";
 import multer from "multer";
 import {addNewAudioSchema, getMetaDataSchema, removeAudioSchema} from "../commons";
 import {command} from "../services/ffmpegService";
+import {isContentTypeValid} from "../middlewares";
 
 export const router = Router();
 
@@ -24,7 +25,9 @@ const videoService: VideoService = new VideoService(command);
  * @desc routers [endpoints].
  * endpoints to edit media files.
  */
-router.use(upload.single('file'))
+router
+  .use(isContentTypeValid) // middleware for validating multipart/form-data requests.
+  .use(upload.single('file')) // middleware to extract files from the request.
   .post('/rm-audio',controllerHandler(videoService.removeAudio, removeAudioSchema))
   .post('/meta-video',controllerHandler(videoService.getMetadata, getMetaDataSchema))
   .post('/new-audio', controllerHandler(videoService.addNewAudio, addNewAudioSchema));
