@@ -44,6 +44,10 @@ export class VideoService {
         }
     }
 
+    removeVideo = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
+      return {};
+    }
+
     /**
      * @description extracts and sends video dats
      * @param {RequestsArgs}
