@@ -49,7 +49,7 @@ export class MediaService {
     }
 
     /**
-     * @description extracts and sends video dats
+     * @description extracts and sends video metadata
      * @param {RequestsArgs}
      * @returns {Promise<ReturnValue>}
      */

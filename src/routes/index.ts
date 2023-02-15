@@ -1,8 +1,13 @@
 import {Router} from "express";
-import { controllerHandler } from "../commons";
+import {
+  controllerHandler,
+  removeVideoSchema,
+  addNewAudioSchema,
+  getMetaDataSchema,
+  removeAudioSchema
+} from "../commons";
 import {MediaService} from "../services";
 import multer from "multer";
-import {addNewAudioSchema, getMetaDataSchema, removeAudioSchema} from "../commons";
 import {command} from "../services/ffmpegService";
 import {isContentTypeValid} from "../middlewares";
 
@@ -29,7 +34,7 @@ router
   .use(isContentTypeValid) // middleware for validating multipart/form-data requests.
   .use(upload.single('file')) // middleware to extract files from the request.
   .post('/rm-audio',controllerHandler(mediaService.removeAudio, removeAudioSchema))
-  .post('/rm-video', controllerHandler(mediaService.removeVideo))
+  .post('/rm-video', controllerHandler(mediaService.removeVideo, removeVideoSchema))
   .post('/meta-video',controllerHandler(mediaService.getMetadata, getMetaDataSchema))
   .post('/new-audio', controllerHandler(mediaService.addNewAudio, addNewAudioSchema));
 
