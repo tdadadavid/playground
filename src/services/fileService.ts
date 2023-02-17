@@ -2,7 +2,7 @@ import {join} from "path";
 import {randomBytes} from "crypto";
 
 export class FileService {
-  public getFileInfo= (file: Express.Multer.File, desiredOutputExtension?: string, extra: string = "edited") => {
+  public getFileInfo= (file: Express.Multer.File, desiredOutputExtension?: string, extra: string = "edited"): Array<string> => {
     let extension = this.getExtension(file, desiredOutputExtension);
 
     const fileName = `${this.generateOutputName(extra)}.${extension}`
@@ -10,11 +10,11 @@ export class FileService {
     return [extension, outputMediaPath, fileName];
   }
 
-  private getExtension = (file: Express.Multer.File, outputExtension?: string) => {
+  private getExtension = (file: Express.Multer.File, outputExtension?: string): string => {
     return outputExtension ? outputExtension : file.originalname.split('.')[1];
   }
 
-  private generateOutputName = (extra: string) => {
+  private generateOutputName = (extra: string): string => {
     const hexString = randomBytes(8).toString('hex');
 
     if (extra) return `${hexString}-${extra}`

@@ -6,7 +6,6 @@ import {randomBytes, randomUUID} from "crypto";
 import {FileService} from "./fileService";
 
 //TODO: so the video is processing check on how to stream it
-//TODO: I also think I need to store the processed file in a folder
 //TODO: then create an endpoint to retrieve it.
 //TODO: read on seeking in mp4
 
@@ -19,6 +18,7 @@ export class MediaService {
       public readonly manipulator: FfmpegCommand,
       public readonly fileService: FileService
     ) {}
+
     /**
      * @description removes audio from a video file
      * @param {RequestsArgs} file
@@ -53,7 +53,7 @@ export class MediaService {
    * @returns {Promise<ReturnValue>}
    */
   removeVideo = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-    const [extension, outputMediaPath, fileName] = this.fileService.getFileInfo(file, 'mp3');
+    const [extension, outputMediaPath, fileName]: Array<string> = this.fileService.getFileInfo(file, 'mp3');
     this.manipulator.input(file.path)
       .format(extension)
       .noVideo()
@@ -83,11 +83,16 @@ export class MediaService {
      * @param {RequestsArgs}
      * @returns {Promise<ReturnValue>}
      */
-    async addNewAudio({}: RequestsArgs): Promise<ReturnValue> {
+    addNewAudio = async ({}: RequestsArgs): Promise<ReturnValue> => {
         return {}
     }
 
-    getVideo = async ({ param }: RequestsArgs): Promise<ReturnValue> => {
+  /**
+   * @description returns the processed video.
+   * @param {RequestsArgs} param
+   * @returns {Promise<ReturnValue>}
+   */
+  getVideo = async ({ param }: RequestsArgs): Promise<ReturnValue> => {
         return {};
     }
 }
