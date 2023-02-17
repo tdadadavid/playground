@@ -17,7 +17,7 @@ export class MediaService {
     constructor(public readonly manipulator: FfmpegCommand) {}
     /**
      * @description removes audio from a video file
-     * @param {RequestsArgs}
+     * @param {RequestsArgs} file
      * @returns {Promise<ReturnValue>}
      */
     removeAudio = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
@@ -44,8 +44,25 @@ export class MediaService {
         }
     }
 
-    removeVideo = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-      return {};
+  /**
+   * @description removes all frames from a video input.
+   * @param {RequestsArgs} file
+   * @returns {Promise<ReturnValue>}
+   */
+  removeVideo = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
+    const [extension, outputMediaPath] = this.getFilePathAndExtension(file, 'mp3');
+    const output = this.manipulator.input(file.path)
+      .format(extension)
+      .noVideo()
+      .save(outputMediaPath)
+
+    const outputFileName = (output as any)['_outputs'][0]['target'].split('/').at(-1);
+
+    return {
+        code: 200,
+        message: "Video frames are being removed",
+        data: outputFileName,
+      }
     }
 
     /**
@@ -71,11 +88,13 @@ export class MediaService {
         return {};
     }
 
-    private getFilePathAndExtension = (file: Express.Multer.File): Array<string>  => {
-        const extension = file.originalname.split('.')[1];
-        const fileName = file.originalname;
-        const randomId = randomUUID().toString();
-        const outputMediaPath = path.join(__dirname, `../../media/output/${fileName}-${randomId}.${extension}`);
-        return [extension, outputMediaPath];
+    private getFilePathAndExtension = (file: Express.Multer.File, extension?: string ): Array<string>  => {
+
+      if(!extension){ extension = file.originalname.split('.')[1]; }
+
+      const fileName = file.originalname;
+      const randomId = randomUUID().toString();
+      const outputMediaPath = path.join(__dirname, `../../media/output/${fileName}-${randomId}.${extension}`);
+      return [extension, outputMediaPath];
     }
 }
