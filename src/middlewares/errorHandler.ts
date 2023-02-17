@@ -1,8 +1,9 @@
 import {NextFunction, Request, Response} from "express";
 import {ApiError} from "../commons/errors/ApiError";
+import {Handler} from "./Handler";
 
 
-class ErrorHandler {
+class ErrorHandler extends Handler {
 
   handle(err: any, req: Request, res: Response, next: NextFunction){
     let message  = "Internal Server Error";
