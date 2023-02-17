@@ -14,7 +14,8 @@ import {FileService} from "./fileService";
  */
 export class MediaService {
 
-    constructor(
+
+  constructor(
       public readonly manipulator: FfmpegCommand,
       public readonly fileService: FileService
     ) {}
@@ -25,7 +26,7 @@ export class MediaService {
      * @returns {Promise<ReturnValue>}
      */
     removeAudio = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-        const [extension, outputPath, fileName] = this.fileService.getFileInfo(file);
+        const [extension, outputPath, fileName]: Array<string> = this.fileService.getFileInfo(file);
         this.manipulator.input(file.path)
           .noAudio()
           .format(extension)
@@ -61,7 +62,7 @@ export class MediaService {
 
     return {
         code: 200,
-        message: "Video frames are being removed",
+        message: "Audio output will be ready soon",
         data: {
           file: fileName
         }
