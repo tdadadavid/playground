@@ -3,6 +3,7 @@ import {FfmpegCommand} from "fluent-ffmpeg";
 import {MediaProcessingError} from "../commons";
 import { join } from "path";
 import {randomBytes, randomUUID} from "crypto";
+import {FileService} from "./fileService";
 
 //TODO: so the video is processing check on how to stream it
 //TODO: I also think I need to store the processed file in a folder
@@ -14,15 +15,18 @@ import {randomBytes, randomUUID} from "crypto";
  */
 export class MediaService {
 
-    constructor(public readonly manipulator: FfmpegCommand) {}
+    constructor(
+      public readonly manipulator: FfmpegCommand,
+      public readonly fileService: FileService
+    ) {}
     /**
      * @description removes audio from a video file
      * @param {RequestsArgs} file
      * @returns {Promise<ReturnValue>}
      */
     removeAudio = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-        const [extension, outputPath, fileName] = this.getFilePathAndExtension(file);
-        const output = this.manipulator.input(file.path)
+        const [extension, outputPath, fileName] = this.fileService.getFileInfo(file);
+        this.manipulator.input(file.path)
           .noAudio()
           .format(extension)
           .on('progress', (data) => {
@@ -49,8 +53,8 @@ export class MediaService {
    * @returns {Promise<ReturnValue>}
    */
   removeVideo = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-    const [extension, outputMediaPath, fileName] = this.getFilePathAndExtension(file, 'mp3');
-    const output = this.manipulator.input(file.path)
+    const [extension, outputMediaPath, fileName] = this.fileService.getFileInfo(file, 'mp3');
+    this.manipulator.input(file.path)
       .format(extension)
       .noVideo()
       .save(outputMediaPath)
@@ -85,26 +89,5 @@ export class MediaService {
 
     getVideo = async ({ param }: RequestsArgs): Promise<ReturnValue> => {
         return {};
-    }
-
-    private getFilePathAndExtension = (file: Express.Multer.File, outputExtension?: string, extra: string = "edited"): Array<string>  => {
-
-      let extension = this.getExtension(file, outputExtension);
-
-      const fileName = `${this.generateOutputName(extra)}.${extension}`
-      const outputMediaPath = join(__dirname, `../../media/output/${fileName}`);
-      return [extension, outputMediaPath, fileName];
-    }
-
-    private getExtension = (file: Express.Multer.File, outputExtension?: string) => {
-      return outputExtension ? outputExtension : file.originalname.split('.')[1];
-    }
-
-    private generateOutputName = (extra: string) => {
-      const hexString = randomBytes(8).toString('hex');
-
-      if (extra) return `${hexString}-${extra}`
-
-      return hexString;
     }
 }
