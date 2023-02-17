@@ -1,23 +1,25 @@
 import {Router} from "express";
+import multer, {StorageEngine} from "multer";
+import {isContentTypeValid,controllerHandler} from "../middlewares";
 import {
-  controllerHandler,
   removeVideoSchema,
   addNewAudioSchema,
   getMetaDataSchema,
-  removeAudioSchema
+  removeAudioSchema,
 } from "../commons";
-import {MediaService} from "../services";
-import multer from "multer";
-import {command} from "../services/ffmpegService";
-import {isContentTypeValid} from "../middlewares";
-import {FileService} from "../services/fileService";
+import {
+  command,
+  FileService,
+  MediaService
+} from "../services";
+
 
 export const router = Router();
 
 /**
  * @desc File storage configuration
  */
-const storage = multer.diskStorage({
+const storage: StorageEngine = multer.diskStorage({
   destination: '../../tmp/'
 })
 const upload = multer({ storage, });
@@ -35,14 +37,14 @@ const mediaService: MediaService = new MediaService(command, fileService);
 router
   .use(isContentTypeValid) // middleware for validating multipart/form-data requests.
   .use(upload.single('file')) // middleware to extract files from the request.
-  .post('/rm-audio',controllerHandler(mediaService.removeAudio, removeAudioSchema))
-  .post('/rm-video', controllerHandler(mediaService.removeVideo, removeVideoSchema))
-  .post('/meta-video',controllerHandler(mediaService.getMetadata, getMetaDataSchema))
-  .post('/new-audio', controllerHandler(mediaService.addNewAudio, addNewAudioSchema));
+  .post('/rm-audio',controllerHandler.handle(mediaService.removeAudio, removeAudioSchema))
+  .post('/rm-video', controllerHandler.handle(mediaService.removeVideo, removeVideoSchema))
+  .post('/meta-video',controllerHandler.handle(mediaService.getMetadata, getMetaDataSchema))
+  .post('/new-audio', controllerHandler.handle(mediaService.addNewAudio, addNewAudioSchema));
 
 /**
  * @desc routers [endpoints].
  * endpoints to get edited media files.
  */
 router
-  .get('/video/:videoName', controllerHandler(mediaService.getVideo))
+  .get('/video/:videoName', controllerHandler.handle(mediaService.getVideo))

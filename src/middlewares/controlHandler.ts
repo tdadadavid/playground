@@ -6,12 +6,10 @@ import {
 } from "../utils";
 import {Request, Response, NextFunction} from "express";
 import {Schema} from "joi";
-import {ValidationError} from "../commons/errors";
-import {validateReq} from "../commons/validations";
 import {Handler} from "./Handler";
 
 
-export class ControlHandler extends Handler {
+class ControlHandler extends Handler {
     /**
      * @desc Custom wrapper around express req/res callback function.
      * @param {AnyFunction} func
@@ -44,3 +42,6 @@ export class ControlHandler extends Handler {
         }
     }
 }
+
+
+export default new ControlHandler;
