@@ -10,6 +10,7 @@ import {MediaService} from "../services";
 import multer from "multer";
 import {command} from "../services/ffmpegService";
 import {isContentTypeValid} from "../middlewares";
+import {FileService} from "../services/fileService";
 
 export const router = Router();
 
@@ -24,7 +25,8 @@ const upload = multer({ storage, });
 /**
  * @desc video manipulation service.
  */
-const mediaService: MediaService = new MediaService(command);
+const fileService: FileService = new FileService();
+const mediaService: MediaService = new MediaService(command, fileService);
 
 /**
  * @desc routers [endpoints].
