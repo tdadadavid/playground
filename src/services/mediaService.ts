@@ -1,8 +1,8 @@
 import {RequestsArgs, ReturnValue} from "../utils";
 import {FfmpegCommand} from "fluent-ffmpeg";
 import {MediaProcessingError} from "../commons";
-import path from "path";
-import {randomUUID} from "crypto";
+import { join } from "path";
+import {randomBytes, randomUUID} from "crypto";
 
 //TODO: so the video is processing check on how to stream it
 //TODO: I also think I need to store the processed file in a folder
@@ -21,7 +21,7 @@ export class MediaService {
      * @returns {Promise<ReturnValue>}
      */
     removeAudio = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-        const [extension, outputPath] = this.getFilePathAndExtension(file);
+        const [extension, outputPath, fileName] = this.getFilePathAndExtension(file);
         const output = this.manipulator.input(file.path)
           .noAudio()
           .format(extension)
@@ -34,12 +34,11 @@ export class MediaService {
           })
           .save(outputPath);
 
-        const outputFileName = (output as any)['_outputs'][0]['target'].split('/').at(-1);
         return {
           code: 200,
           message: "Audio content removed in a giffy",
           data: {
-              file: outputFileName,
+              file: fileName,
           }
         }
     }
@@ -50,18 +49,18 @@ export class MediaService {
    * @returns {Promise<ReturnValue>}
    */
   removeVideo = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
-    const [extension, outputMediaPath] = this.getFilePathAndExtension(file, 'mp3');
+    const [extension, outputMediaPath, fileName] = this.getFilePathAndExtension(file, 'mp3');
     const output = this.manipulator.input(file.path)
       .format(extension)
       .noVideo()
       .save(outputMediaPath)
 
-    const outputFileName = (output as any)['_outputs'][0]['target'].split('/').at(-1);
-
     return {
         code: 200,
         message: "Video frames are being removed",
-        data: outputFileName,
+        data: {
+          file: fileName
+        }
       }
     }
 
@@ -88,13 +87,24 @@ export class MediaService {
         return {};
     }
 
-    private getFilePathAndExtension = (file: Express.Multer.File, extension?: string ): Array<string>  => {
+    private getFilePathAndExtension = (file: Express.Multer.File, outputExtension?: string, extra: string = "edited"): Array<string>  => {
 
-      if(!extension){ extension = file.originalname.split('.')[1]; }
+      let extension = this.getExtension(file, outputExtension);
 
-      const fileName = file.originalname;
-      const randomId = randomUUID().toString();
-      const outputMediaPath = path.join(__dirname, `../../media/output/${fileName}-${randomId}.${extension}`);
-      return [extension, outputMediaPath];
+      const fileName = `${this.generateOutputName(extra)}.${extension}`
+      const outputMediaPath = join(__dirname, `../../media/output/${fileName}`);
+      return [extension, outputMediaPath, fileName];
+    }
+
+    private getExtension = (file: Express.Multer.File, outputExtension?: string) => {
+      return outputExtension ? outputExtension : file.originalname.split('.')[1];
+    }
+
+    private generateOutputName = (extra: string) => {
+      const hexString = randomBytes(8).toString('hex');
+
+      if (extra) return `${hexString}-${extra}`
+
+      return hexString;
     }
 }
