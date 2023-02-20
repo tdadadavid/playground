@@ -1,8 +1,6 @@
 import {RequestsArgs, ReturnValue} from "../utils";
-import {FfmpegCommand} from "fluent-ffmpeg";
+import {FfmpegCommand, FfprobeData} from "fluent-ffmpeg";
 import {MediaProcessingError} from "../commons";
-import { join } from "path";
-import {randomBytes, randomUUID} from "crypto";
 import {FileService} from "./fileService";
 
 //TODO: so the video is processing check on how to stream it
@@ -26,6 +24,7 @@ export class MediaService {
      * @returns {Promise<ReturnValue>}
      */
     removeAudio = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
+      // get the file information
         const [extension, outputPath, fileName]: Array<string> = this.fileService.getFileInfo(file);
         this.manipulator.input(file.path)
           .noAudio()
@@ -39,6 +38,7 @@ export class MediaService {
           })
           .save(outputPath);
 
+        // return the file name being processed.
         return {
           code: 200,
           message: "Audio content removed in a giffy",
@@ -54,12 +54,14 @@ export class MediaService {
    * @returns {Promise<ReturnValue>}
    */
   removeVideo = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
+    // get necessary file information
     const [extension, outputMediaPath, fileName]: Array<string> = this.fileService.getFileInfo(file, 'mp3');
     this.manipulator.input(file.path)
       .format(extension)
       .noVideo()
       .save(outputMediaPath)
 
+    // return desired output
     return {
         code: 200,
         message: "Audio output will be ready soon",
@@ -74,8 +76,22 @@ export class MediaService {
      * @param {RequestsArgs}
      * @returns {Promise<ReturnValue>}
      */
-    async getMetadata({}: RequestsArgs): Promise<ReturnValue> {
-        return {}
+    getMetadata = async ({ file }: RequestsArgs): Promise<ReturnValue> => {
+      let result: any;
+      await this.manipulator.input(file.path)
+        .ffprobe((err: Error, data: FfprobeData): FfprobeData => {
+          if (err){
+            throw new MediaProcessingError(err.message);
+          }
+          result = data;
+          return data;
+        })
+      //TODO: i have to stream this .
+      return {
+        code: 200,
+        message: "You must be a Geek!!!",
+        data: result,
+      }
     }
 
     /**
@@ -86,6 +102,30 @@ export class MediaService {
      */
     addNewAudio = async ({}: RequestsArgs): Promise<ReturnValue> => {
         return {}
+    }
+
+    extractAudio = async ({file, body}: RequestsArgs): Promise<ReturnValue> => {
+      const { startTime, endTime  } = body;
+
+      // get the duration of audio to be extracted
+      const duration: number = startTime - endTime;
+
+      // extract file information
+      const [outputMediaPath, fileName]: Array<string> = this.fileService.getFileInfo(file, 'mp3', 'extracted');
+      this.manipulator.input(file.path)
+            .setStartTime(startTime)
+            .setDuration(duration)
+            .output(outputMediaPath)
+            .run();
+
+      // return the file name for the user to fetch later.
+      return {
+        code: 200,
+        message: "Extracting your desire from the noise around",
+        data: {
+          file: fileName,
+        }
+      }
     }
 
   /**
