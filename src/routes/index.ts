@@ -5,7 +5,7 @@ import {
   removeVideoSchema,
   addNewAudioSchema,
   getMetaDataSchema,
-  removeAudioSchema,
+  removeAudioSchema, extractAudioSchema,
 } from "../commons";
 import {
   command,
@@ -40,7 +40,8 @@ router
   .post('/rm-audio',controllerHandler.handle(mediaService.removeAudio, removeAudioSchema))
   .post('/rm-video', controllerHandler.handle(mediaService.removeVideo, removeVideoSchema))
   .post('/meta-video',controllerHandler.handle(mediaService.getMetadata, getMetaDataSchema))
-  .post('/new-audio', controllerHandler.handle(mediaService.addNewAudio, addNewAudioSchema));
+  .post('/new-audio', controllerHandler.handle(mediaService.addNewAudio, addNewAudioSchema))
+  .post('/ex-audio', controllerHandler.handle(mediaService.extractAudio, extractAudioSchema))
 
 /**
  * @desc routers [endpoints].
