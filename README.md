@@ -22,4 +22,4 @@ Make sure its fun (Dey-play  😎)
 *** 
 
 Dey play, Just Dey play <br/>
-Your favorite king 😎
+Your king 😎
