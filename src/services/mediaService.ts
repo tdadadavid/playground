@@ -134,6 +134,9 @@ export class MediaService {
    * @returns {Promise<ReturnValue>}
    */
   getVideo = async ({ param }: RequestsArgs): Promise<ReturnValue> => {
-        return {};
+        return {
+          code: 200,
+          message: "this would get the vidoes soon."
+        };
     }
 }
