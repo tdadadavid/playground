@@ -1,6 +1,6 @@
-# Yeah, my playground (Still playing around not done with project)
+# Playground [Audio, Video, Manipulation]
 
-# just playing around audio,video and image manipulation (audvidman)
+# just playing around with audio, video, and image manipulation (audvidman)
 
 ## Thought process 
 
@@ -15,8 +15,16 @@
 [X] '/api/v1/ex-audio'
 
 ***
+Technologies used
+ - Nodejs(Expressjs)
+ - Typescript
+ - FFmpeg
+ - Docker
+ - Postman
 
-You also want to play? Fork it, contribute and make a pull request.
+***
+
+Do you also want to play? Fork it, contribute, and make a pull request.
 Make sure its fun (Dey-play  😎)
 
 *** 
